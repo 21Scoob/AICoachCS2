@@ -2,3 +2,6 @@
 .python-version
 pyproject.toml
 uv.lock
+migrations
+docker-compose.yml
+alembic.ini
