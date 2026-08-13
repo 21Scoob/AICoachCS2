@@ -5,7 +5,6 @@ uv.lock
 migrations
 docker-compose.yml
 alembic.ini
-models.py
 __pycache__
 .pytest_cache
 test_models.py
