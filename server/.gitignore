@@ -3,7 +3,6 @@
 pyproject.toml
 uv.lock
 migrations
-docker-compose.yml
 alembic.ini
 __pycache__
 .pytest_cache
