@@ -7,3 +7,6 @@ alembic.ini
 __pycache__
 .pytest_cache
 test_models.py
+/home/scoob/Code/AICoachCS2/server/docker-compose.yml
+
+

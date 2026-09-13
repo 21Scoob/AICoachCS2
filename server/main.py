@@ -8,10 +8,14 @@ from contextlib import asynccontextmanager
 import os
 from dotenv import load_dotenv
 import datetime
+import httpx
+from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic_core import from_json
 
 load_dotenv()
 
 DB = os.getenv('SQL_DATABASE_URL')
+leetify_api_key = os.getenv('LEETIFY_API')
 
 engine = create_async_engine(DB,
                              connect_args={"statement_cache_size": 0})
@@ -29,6 +33,28 @@ async def get_db():
 
 app = FastAPI(lifespan=lifespan)
 
+#Leetify data retrievers
+async def validate_leetify_key(leetify_api_key: str) -> bool:
+    async with httpx.AsyncClient() as client:
+        r = await client.get("https://api-public.cs-prod.leetify.com/api-key/validate", headers = {'Authorization': f"Bearer {leetify_api_key}"})
+        return r.status_code == 200
+
+async def get_recent_matches(leetify_id: str, leetify_api_key: str):
+    async with httpx.AsyncClient() as client:
+        r = await client.get("https://api-public.cs-prod.leetify.com/v3/profile/matches", headers = {'Authorization': f"Bearer {leetify_api_key}"}, params={"id": leetify_id})
+        if r.status_code == 200:
+            return r.json()
+        else:
+            return r.status_code
+
+#JSON parser for database
+class UserCreate(BaseModel):
+    username : str
+    email : str
+    password : str
+    steamid_64: str | None = None
+
+#Backend route logic
 @app.get("/user/{user_id}")
 async def user_extract(user_id: int, db = Depends(get_db)):
     users = select(User).where(User.id == user_id)
@@ -54,8 +80,11 @@ async def match_extract(match_id: int, db = Depends(get_db)):
         return{"map": found_matches.map}
 
 @app.post("/add-user")
-async def create_user(db = Depends(get_db)):
-    addinguser = User(username = "Mirel", password = "1234", email = "asdasad@asd.com")
+async def create_user(user_data: UserCreate, db = Depends(get_db)):
+    addinguser = User(username = user_data.username,
+                      email = user_data.email,
+                      password = user_data.password,
+                      steamid_64 = user_data.steamid_64)
     db.add(addinguser)
     await db.commit()
     await db.refresh(addinguser)

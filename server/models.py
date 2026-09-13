@@ -12,6 +12,7 @@ class User(Base):
     username : Mapped[str] = mapped_column(String(30))
     password : Mapped[str] = mapped_column(String(40))
     email : Mapped[str] = mapped_column(String(40))
+    steamid_64 : Mapped[str] = mapped_column(String(40), nullable = True)
 
     stats : Mapped[list["PlayerMatchStats"]] = relationship(back_populates="user")
 
