@@ -1,9 +1,0 @@
-services:
-  db:
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: cs2_coach
-    ports:
-      - "5433:5433"
