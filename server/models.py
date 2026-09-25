@@ -19,11 +19,11 @@ class User(Base):
 class Match(Base):
     __tablename__ = "matches"
 
-    id : Mapped[int] = mapped_column(primary_key=True)
+    id : Mapped[str] = mapped_column(String(64), primary_key=True)
     map_name: Mapped[str] = mapped_column(String(12))
     date : Mapped[datetime.datetime] = mapped_column(DateTime)
     score : Mapped[str] = mapped_column(String(40))
-    duration : Mapped[int] = mapped_column(Integer)
+    duration : Mapped[int | None] = mapped_column(Integer, nullable = True)
 
     player_stats : Mapped[list["PlayerMatchStats"]] = relationship(back_populates="match")
 
@@ -31,7 +31,7 @@ class PlayerMatchStats(Base):
     __tablename__ = "player_stats"
 
     user_id : Mapped[int] = mapped_column(ForeignKey("user_account.id"))
-    match_id : Mapped[int] = mapped_column(ForeignKey("matches.id"))
+    match_id : Mapped[str] = mapped_column(ForeignKey("matches.id"))
 
     user : Mapped["User"] = relationship(back_populates = "stats")
     match : Mapped["Match"] = relationship(back_populates = "player_stats")

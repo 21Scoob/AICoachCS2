@@ -1,7 +1,9 @@
 .agents
-learning
-AGENTS.md
 skills-lock.json
 .env
 *.env
 docker-compose.yml
+.opencode
+learning
+AGENTS.md
+LEARNING_LOG.md

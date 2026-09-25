@@ -90,21 +90,14 @@ async def create_user(user_data: UserCreate, db = Depends(get_db)):
     await db.refresh(addinguser)
     return addinguser
 
-@app.post("/add-match")
-async def match_adder(db = Depends(get_db)):
-    addingmatch = Match(map_name = "Mirage", date = datetime.datetime.utcnow(), score = "13-9", duration = 45)
-    db.add(addingmatch)
-    await db.commit()
-    await db.refresh(addingmatch)
-    return addingmatch
-
-@app.post("/player-match-add/{user_id}")
-async def player_match_user(user_id: int, match_id: int, db = Depends(get_db)):
-    users = select(User).where(User.id == user_id)
-    matches = select(Match).where(Match.id == match_id)
-
-    addingplayermatch = PlayerMatchStats(user_id = user_id, match_id = match_id, kd_ratio = 1.4, utility_use = 1.5, kar_ratio = 2, hs_percentage = 50)
-    db.add(addingplayermatch)
-    await db.commit()
-    await db.refresh(addingplayermatch)
-    return addingplayermatch
+@app.post("/sync-matches/{user_id}")
+async def sync_matches(user_id: int, db = Depends(get_db)):
+    user = select(User).where(User.id == user_id)
+    result = await db.execute(user)
+    found_user = result.scalar_one_or_none()
+    if found_user is None:
+        return {"error": "User negasit"}
+    if not found_user.steamid_64:
+        return {"error": "Userul nu are steamid_64 setat"}
+    matches_data = await get_recent_matches(found_user.steamid_64, leetify_api_key)
+    return matches_data
