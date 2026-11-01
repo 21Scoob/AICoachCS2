@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, String, Integer, Numeric, Date, DateTime, Time
+from sqlalchemy import ForeignKey, String, Integer, Numeric, DateTime, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 import datetime
 
@@ -13,6 +13,7 @@ class User(Base):
     password : Mapped[str] = mapped_column(String(40))
     email : Mapped[str] = mapped_column(String(40))
     steamid_64 : Mapped[str] = mapped_column(String(40), nullable = True)
+    leetify_id: Mapped[str] = mapped_column(String(40), nullable = True)
 
     stats : Mapped[list["PlayerMatchStats"]] = relationship(back_populates="user")
 
@@ -29,7 +30,10 @@ class Match(Base):
 
 class PlayerMatchStats(Base):
     __tablename__ = "player_stats"
-
+    __table_args__ = (
+        UniqueConstraint('user_id', 'match_id', name = "uq_userandmatch"),
+    )
+    
     user_id : Mapped[int] = mapped_column(ForeignKey("user_account.id"))
     match_id : Mapped[str] = mapped_column(ForeignKey("matches.id"))
 
